@@ -1,0 +1,22 @@
+5. Add new camera config using sysReg
+4. Test if you can see the Bitflow Card via Twack-32.msi
+
+Software Setup
+1. Install Twack-32.msi from http://www.twain.org/specification/
+2. Install Bitflow 6.20 SDK and the Twain Driver for 6.20 from http://www.bitflow.com/products/downloads
+3. Copy BFTwain.ds to C:\Windows\twain_32
+
+Hardware Setup
+1. Copy Camera config file to C:\BitFlow SDK 6.20\Config\R64
+2. Add new camera config to sysReg
+3. Open bfCom to open serial communiation with camera. Set the commands to 'hex mode' then send the follow commands to put the camera into the correct exposure mode:
+	01,00,14,03,28,55,73,65,72,53,65,74,30,31,00,00,00,00,00,00,00,00,00,00,00,03
+	01,00,01,01,14,04,03
+	01,00,01,01,28,06,03
+
+Hardware Test
+1. Open CiView, image from camera should show up
+2. Open Twacker, choose the correct source and scan
+
+
+
