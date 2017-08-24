@@ -117,6 +117,7 @@ def focus_1():
         sendSerial(xy_stage,"1pr"+str(point1_y)+";\r\n");
         time.sleep(com_sleep);
         print(recSerial(xy_stage));
+        time.sleep(com_sleep);
         sendSerial(xy_stage,"0lo1;\r\n");
         time.sleep(com_sleep);
         scantime = 0;
@@ -139,6 +140,7 @@ def focus_2():
         sendSerial(xy_stage,"1pr"+str(point2_y)+";\r\n");
         time.sleep(com_sleep);
         print(recSerial(xy_stage));
+        time.sleep(com_sleep);
         sendSerial(xy_stage, "0lo1;\r\n");
         time.sleep(com_sleep);
         scantime = 0;
@@ -161,6 +163,7 @@ def focus_3():
         sendSerial(xy_stage,"1pr"+str(point3_y)+";\r\n");
         time.sleep(com_sleep);
         print(recSerial(xy_stage));
+        time.sleep(com_sleep);
         sendSerial(xy_stage, "0lo1;\r\n");
         time.sleep(com_sleep);
         scantime = 0;
