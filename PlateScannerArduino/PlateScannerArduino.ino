@@ -1,4 +1,4 @@
- //ARDUINO MOVE with Commands
+//Plate Scanner Arduino
 //YIP LAB - Aaron Au
 
 //Constants
@@ -6,6 +6,7 @@ int pinDir[] = {6,3}; //Motor Direction {x,y}
 int pinEn[] = {5,2}; //Motor Enable {x,y}
 int pinPul[] = {7,4}; //Motor Pulse {x,y}
 int pinLim[2][2] = {{11,10},{8,9}};//Limit switch X positive direction {{x+,x-},{y+,y-}}
+int pinLight = 13;
 
 int pulseTime = 300;  //Time between High and Low for a pulse (us)
 float stepsPerMillimeter = 800.*16./25.4; //800 steps/rotation * 16 rotations/inch * 1/25.4 inch/mm 
@@ -25,10 +26,11 @@ void setup() {
 
   pinMode(12, OUTPUT);
   digitalWrite(12, HIGH);
-  pinMode(13, OUTPUT);
-  digitalWrite(13, HIGH);   
+  pinMode(pinLight, OUTPUT);
+  digitalWrite(pinLight, LOW);
+ 
 
-  Serial.println("Move with Commands");
+  Serial.println("Plate Scanner Arduino");
 }
 
 boolean moveSteps(int axis, boolean dir, long nrsteps, boolean limits) {
@@ -62,16 +64,12 @@ void doCommand(String command) {
     float distance = command.substring(3,10).toFloat();
     boolean dir = distance > 0.0;
     long steps = (long) abs(distance) * stepsPerMillimeter + 0.5;  // + 0.5 for rounding
-    /*Serial.print("axis: ");
-    Serial.print(axis);
-    Serial.print("direction: ");
-    Serial.print(dir);
-    Serial.print(abs(distance)*stepsPerMillimeter);
-    Serial.print("steps: ");
-    Serial.println(steps);*/
     Serial.println(moveSteps(axis, dir, steps, true));
   } else if (command.substring(1,3) == "or") {
     zero();
+  } else if (command.substring(1,3) == "lo") {
+    //Serial.println(command.substring(3,4).toInt());
+    digitalWrite(pinLight,command.substring(3,4).toInt());
   }
 
 }
