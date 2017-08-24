@@ -117,6 +117,8 @@ def focus_1():
         sendSerial(xy_stage,"1pr"+str(point1_y)+";\r\n");
         time.sleep(com_sleep);
         print(recSerial(xy_stage));
+        sendSerial(xy_stage,"0lo1;\r\n");
+        time.sleep(com_sleep);
         scantime = 0;
         zeroed = False;
         
@@ -137,6 +139,8 @@ def focus_2():
         sendSerial(xy_stage,"1pr"+str(point2_y)+";\r\n");
         time.sleep(com_sleep);
         print(recSerial(xy_stage));
+        sendSerial(xy_stage, "0lo1;\r\n");
+        time.sleep(com_sleep);
         scantime = 0;
         zeroed = False;
         
@@ -157,6 +161,8 @@ def focus_3():
         sendSerial(xy_stage,"1pr"+str(point3_y)+";\r\n");
         time.sleep(com_sleep);
         print(recSerial(xy_stage));
+        sendSerial(xy_stage, "0lo1;\r\n");
+        time.sleep(com_sleep);
         scantime = 0;
         zeroed = False;
 
@@ -175,6 +181,8 @@ def stop():
         time.sleep(1)
         changeStatus('Zeroing')
 
+        sendSerial(xy_stage, "0lo0;\r\n");
+        time.sleep(com_sleep);
         sendSerial(xy_stage, "0or;\r\n");
         time.sleep(com_sleep);
         print(recSerial(xy_stage));
@@ -202,7 +210,8 @@ def scan():
         zeroed = False
         changeStatus('Scanning Plate')
         print('scan plate')
-        time.sleep(1)
+        sendSerial(xy_stage, "0lo1;\r\n");
+        time.sleep(com_sleep);
         for col in range(8):
             #Acquire and move
             for i in range(12):
