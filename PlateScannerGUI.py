@@ -14,9 +14,11 @@ from PIL import Image, ImageTk
 
 #VARIABLES
 xyCom = "COM3"; #xy_stage COM port
-well_size = 9; #mm
+well_size = 8.95; #mm
 start_x = 50; #mm
-start_y = 11; #mm
+start_y = 10.75; #mm
+adj_y = -0.1; #mm
+adj_x = -0.1; #mm
 com_sleep = 1; #seconds
 cap_sleep = 1; #seconds
 point1_x =4.5*well_size; #mm
@@ -110,15 +112,9 @@ def focus_1():
     else: 
         running = True
         changeStatus('Focus 1')
-        sendSerial(xy_stage,"0pr"+str(point1_x)+";\r\n");
+        sendSerial(xy_stage,"0pr"+str(point1_x)+";1pr"+str(point1_y)+";0lo1;\r\n");
         time.sleep(com_sleep);
         print(recSerial(xy_stage));
-        time.sleep(com_sleep);
-        sendSerial(xy_stage,"1pr"+str(point1_y)+";\r\n");
-        time.sleep(com_sleep);
-        print(recSerial(xy_stage));
-        time.sleep(com_sleep);
-        sendSerial(xy_stage,"0lo1;\r\n");
         time.sleep(com_sleep);
         scantime = 0;
         zeroed = False;
@@ -133,15 +129,9 @@ def focus_2():
     else: 
         running = True
         changeStatus('Focus 2')
-        sendSerial(xy_stage,"0pr"+str(point2_x)+";\r\n");
+        sendSerial(xy_stage,"0pr"+str(point2_x)+";1pr"+str(point2_y)+";0lo1;\r\n");
         time.sleep(com_sleep);
         print(recSerial(xy_stage));
-        time.sleep(com_sleep);
-        sendSerial(xy_stage,"1pr"+str(point2_y)+";\r\n");
-        time.sleep(com_sleep);
-        print(recSerial(xy_stage));
-        time.sleep(com_sleep);
-        sendSerial(xy_stage, "0lo1;\r\n");
         time.sleep(com_sleep);
         scantime = 0;
         zeroed = False;
@@ -156,15 +146,9 @@ def focus_3():
     else: 
         running = True
         changeStatus('Focus 3')
-        sendSerial(xy_stage,"0pr"+str(point3_x)+";\r\n");
+        sendSerial(xy_stage, "0pr" + str(point3_x) + ";1pr" + str(point3_y) + ";0lo1;\r\n");
         time.sleep(com_sleep);
         print(recSerial(xy_stage));
-        time.sleep(com_sleep);
-        sendSerial(xy_stage,"1pr"+str(point3_y)+";\r\n");
-        time.sleep(com_sleep);
-        print(recSerial(xy_stage));
-        time.sleep(com_sleep);
-        sendSerial(xy_stage, "0lo1;\r\n");
         time.sleep(com_sleep);
         scantime = 0;
         zeroed = False;
@@ -180,21 +164,15 @@ def stop():
     global running
     global zeroed
     if zeroed == False:
-        xy_stage.reset_input_buffer();
         time.sleep(1)
+        xy_stage.reset_input_buffer();
         changeStatus('Zeroing')
 
-        sendSerial(xy_stage, "0lo0;\r\n");
-        time.sleep(com_sleep);
-        sendSerial(xy_stage, "0or;\r\n");
+        sendSerial(xy_stage, "0lo0;0or;\r\n");
         time.sleep(com_sleep);
         print(recSerial(xy_stage));
         time.sleep(com_sleep);
-        sendSerial(xy_stage,"0pr"+str(start_x)+";\r\n");
-        time.sleep(com_sleep);
-        print(recSerial(xy_stage));
-        time.sleep(com_sleep);
-        sendSerial(xy_stage,"1pr"+str(start_y)+";\r\n");
+        sendSerial(xy_stage,"0pr"+str(start_x)+";1pr"+str(start_y)+";\r\n");
         time.sleep(com_sleep);
         print(recSerial(xy_stage));
 
@@ -215,6 +193,8 @@ def scan():
         print('scan plate')
         sendSerial(xy_stage, "0lo1;\r\n");
         time.sleep(com_sleep);
+        print(recSerial(xy_stage));
+        time.sleep(com_sleep);
         for col in range(8):
             #Acquire and move
             for i in range(12):
@@ -231,11 +211,12 @@ def scan():
                 changeImage(im)
         
             #Wait until motor movement is finished:
+            time.sleep(1);
             xy_stage.reset_input_buffer();
             time.sleep(1);
         
             if (col < 7): #Move to next row
-                sendSerial(xy_stage, "0pr"+str(well_size)+";\r\n");
+                sendSerial(xy_stage, "0pr"+str(well_size+adj_x)+";1pr"+str(adj_y)+";\r\n");
                 time.sleep(com_sleep);
                 print(recSerial(xy_stage));
         

@@ -63,8 +63,9 @@ void doCommand(String command) {
     int axis = command.substring(0,1).toInt();
     float distance = command.substring(3,10).toFloat();
     boolean dir = distance > 0.0;
-    long steps = (long) abs(distance) * stepsPerMillimeter + 0.5;  // + 0.5 for rounding
-    Serial.println(moveSteps(axis, dir, steps, true));
+    long steps = (long) (abs(distance) * stepsPerMillimeter + 0.5);  // + 0.5 for rounding
+    moveSteps(axis, dir, steps, true);
+    //Serial.println(moveSteps(axis, dir, steps, true));
   } else if (command.substring(1,3) == "or") {
     zero();
   } else if (command.substring(1,3) == "lo") {
@@ -82,7 +83,7 @@ for (int i = 0; i<2; i++) {
     }
   moveSteps(i,true, 500, false);
 }
-Serial.println("or");
+//Serial.println("or");
 }
 
 void loop() {
@@ -91,6 +92,8 @@ if (Serial.available()) {
   String axis;
   if (command.substring(0,1) == "0" || command.substring(0,1) == "1") {
     doCommand(command);
+  } else if (command == "\r\n") {
+    Serial.println('1');
   }
 }
 }
