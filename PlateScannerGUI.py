@@ -100,6 +100,7 @@ def scanning():
         scantime += 1
 
     # After 1 second, call scanning again (create a recursive loop)
+    root.update()
     root.after(1000, scanning)
 
 def focus_1():
@@ -198,6 +199,8 @@ def scan():
         for col in range(8):
             #Acquire and move
             for i in range(12):
+                if (running == False):
+                    break
                 ss.request_acquire(0, 0);
                 time.sleep(cap_sleep);
                 sendSerial(xy_stage, "1pr" + str((-1) ** col * well_size) + ";\r\n");
@@ -209,13 +212,16 @@ def scan():
                 im = Image.open(file_name);
                 im.thumbnail(resize, Image.ANTIALIAS)
                 changeImage(im)
-        
+                root.update()
+
             #Wait until motor movement is finished:
+            if (running == False):
+                break
             time.sleep(1);
             xy_stage.reset_input_buffer();
             time.sleep(1);
         
-            if (col < 7): #Move to next row
+            if (col < 7 and running == True): #Move to next row
                 sendSerial(xy_stage, "0pr"+str(well_size+adj_x)+";1pr"+str(adj_y)+";\r\n");
                 time.sleep(com_sleep);
                 print(recSerial(xy_stage));
