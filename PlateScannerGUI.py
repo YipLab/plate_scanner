@@ -32,7 +32,7 @@ resize = 500,500; #Image Size
 #INITIALIZE GUI
 root = Tk()
 root.title("96 Well Plate Scanner")
-root.geometry("500x500")
+root.geometry("600x550")
 
 app = Frame(root)
 app.grid();
@@ -45,7 +45,7 @@ vsave = StringVar()
 labsave = Label(app, textvariable=vsave, width=50, height=1)
 vsave.set(cwd);
 
-labimage = Label(app, image = None);
+labimage = Label(app, image = None, borderwidth=3, relief="solid");
 
 #INITIALIZE XY STAGE
 xy_stage = serial.Serial(xyCom);
@@ -235,19 +235,19 @@ stop();
 butstart_0 = Button(app, text="Focus 1", command=focus_1)
 butstart_1 = Button(app, text="Focus 2", command=focus_2)
 butstart_2 = Button(app, text="Focus 3", command=focus_3)
-butstop = Button(app, text="Stop", command=stop)
+butstop = Button(app, text="Zero", command=stop)
 butscan = Button(app, text="Scan Plate", command=scan)
 butsavedir = Button(app, text="Directory", command=findsavedir)
 
 butstart_0.grid(row=0,column=0)
 butstart_1.grid(row=0,column=1)
 butstart_2.grid(row=0,column=2)
-labstatus.grid(row=1,column=0,columnspan=3)
-butscan.grid(row=2,column=0)
-butstop.grid(row=2, column=1)
-butsavedir.grid(row=3,column=0)
-labsave.grid(row=3, column=1, columnspan=3)
-labimage.grid(row=4, column=0, columnspan=4)
+butstop.grid(row=0, column=3)
+labstatus.grid(row=1,column=0,columnspan=2)
+butsavedir.grid(row=2,column=0)
+labsave.grid(row=2, column=1, columnspan=3)
+butscan.grid(row=2,column=4)
+labimage.grid(row=4, column=0, columnspan=5)
 
 root.after(1000, scanning)  # After 1 second, call scanning
 root.mainloop()
