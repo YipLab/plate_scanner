@@ -75,13 +75,14 @@ def changeImage(img):
 
 
 running = False  # Global flag
+reading = False
 scantime = 0 #Global counter
 zeroed = False # Global indicator
 savedir = cwd #Save Directory
 
 def scanning():
     global scantime
-    if running:  # Only do this if the Stop button has not been clicked
+    if (running and not reading):  # Only do this if the Stop button has not been clicked
         print "scanning"
         changeStatus('Focusing')
         ss.request_acquire(0, 0);
@@ -163,6 +164,7 @@ def findsavedir():
 def stop():
     """Stop scanning by setting the global flag to False."""
     global running
+    global reading
     global zeroed
     if zeroed == False:
         time.sleep(1)
@@ -178,17 +180,20 @@ def stop():
         print(recSerial(xy_stage));
 
         running = False
+        reading = False
         zeroed = True
         changeStatus('Ready')
 
 def scan():
     global running
+    global reading
     global zeroed
     global savedir
     if running:
         print 'Already Running'
     else:
         running = True
+        reading = True
         zeroed = False
         changeStatus('Scanning Plate')
         print('scan plate')
