@@ -40,6 +40,9 @@ app.grid();
 labtext = StringVar()
 labstatus = Label(app, textvariable=labtext, width=20, height=1)
 
+orvar = IntVar()
+or_chkbtn = Checkbutton(app, text="Column 1 at top", variable=orvar)
+
 cwd = os.getcwd();
 vsave = StringVar()
 labsave = Label(app, textvariable=vsave, width=50, height=1)
@@ -160,6 +163,13 @@ def findsavedir():
     savedir = tkFileDialog.askdirectory(title="Choose Save Directory", initialdir=cwd)
     vsave.set(savedir)
 
+cols = ['A','B','C','D','E','F','G','H']
+def name_well(col, row, orientation):
+    row = row + 1 
+    if !orientation:
+        col = 7-col
+        row = 11-row
+    return cols[col]+str(row)
 
 def stop():
     """Stop scanning by setting the global flag to False."""
@@ -195,6 +205,7 @@ def scan():
         running = True
         reading = True
         zeroed = False
+        orient = bool(orvar)
         changeStatus('Scanning Plate')
         print('scan plate')
         sendSerial(xy_stage, "0lo1;\r\n");
@@ -209,7 +220,8 @@ def scan():
                 ss.request_acquire(0, 0);
                 time.sleep(cap_sleep);
                 sendSerial(xy_stage, "1pr" + str((-1) ** col * well_size) + ";\r\n");
-                file_name = savedir + '\\'+str(col)+ '_' + str(i) + '.tiff'
+                #file_name = savedir + '\\'+str(col)+ '_' + str(i) + '.tiff'
+                file_name = savedir + '\\' + name_well(col,i,oreint) + '.tiff'
                 ss.file_xfer_params = (file_name, 0);
                 os.remove(file_name);
                 ss.xfer_image_by_file();
@@ -250,8 +262,9 @@ butstart_2.grid(row=0,column=2)
 butstop.grid(row=0, column=3)
 labstatus.grid(row=1,column=0,columnspan=2)
 butsavedir.grid(row=2,column=0)
-labsave.grid(row=2, column=1, columnspan=3)
-butscan.grid(row=2,column=4)
+labsave.grid(row=2, column=1, columnspan=4)
+or_chkbtn.grid(row=3, column=0, columnspan=2)
+butscan.grid(row=3,column=2)
 labimage.grid(row=4, column=0, columnspan=5)
 
 root.after(1000, scanning)  # After 1 second, call scanning
