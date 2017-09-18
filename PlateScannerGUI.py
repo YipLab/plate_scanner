@@ -40,7 +40,7 @@ app.grid();
 labtext = StringVar()
 labstatus = Label(app, textvariable=labtext, width=20, height=1)
 
-orvar = IntVar()
+orvar = BooleanVar()
 or_chkbtn = Checkbutton(app, text="Column 1 at top", variable=orvar)
 
 cwd = os.getcwd();
@@ -165,10 +165,14 @@ def findsavedir():
 
 cols = ['A','B','C','D','E','F','G','H']
 def name_well(col, row, orientation):
-    row = row + 1 
-    if !orientation:
+    row = row + 1
+    odd = col%2 == 1
+    if  not orientation:
         col = 7-col
-        row = 11-row
+        if not odd:
+            row = 13-row
+    elif odd:
+        row = 13-row
     return cols[col]+str(row)
 
 def stop():
@@ -205,7 +209,7 @@ def scan():
         running = True
         reading = True
         zeroed = False
-        orient = bool(orvar)
+        orient = orvar.get()
         changeStatus('Scanning Plate')
         print('scan plate')
         sendSerial(xy_stage, "0lo1;\r\n");
@@ -221,7 +225,7 @@ def scan():
                 time.sleep(cap_sleep);
                 sendSerial(xy_stage, "1pr" + str((-1) ** col * well_size) + ";\r\n");
                 #file_name = savedir + '\\'+str(col)+ '_' + str(i) + '.tiff'
-                file_name = savedir + '\\' + name_well(col,i,oreint) + '.tiff'
+                file_name = savedir + '\\' + name_well(col,i,orient) + '.tiff'
                 ss.file_xfer_params = (file_name, 0);
                 os.remove(file_name);
                 ss.xfer_image_by_file();
