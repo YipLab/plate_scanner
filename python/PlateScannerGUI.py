@@ -206,11 +206,13 @@ def stop():
     global running
     global reading
     global zeroed
+    global ss
     if zeroed == False:
         time.sleep(1)
         xy_stage.reset_input_buffer();
         changeStatus('Zeroing')
         sendSerial(xy_stage, "0lo0;0or;\r\n");
+        ss.destroy();
         time.sleep(com_sleep);
         print(recSerial(xy_stage));
         time.sleep(com_sleep);
