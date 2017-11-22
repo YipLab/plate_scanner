@@ -6,6 +6,7 @@ Created on Fri Aug 18 13:31:18 2017
 """
 from Tkinter import *
 import tkFileDialog
+import tkMessageBox
 import twain
 import serial
 import time
@@ -35,12 +36,12 @@ resize = 500,500; #Image Size
 camerafiles = ["BitFlow Camera Interface Short", "BitFlow Camera Interface Long"]
 cols = ['A','B','C','D','E','F','G','H']
 offsets = [0, 575, 220, 100, 270, 160, 200, 100]; # offset from where to cut
-cut_dis = 4050; #pixels 
+cut_dis = 4050; #pixels
 
 #INITIALIZE GUI
 root = Tk()
 root.title("96 Well Plate Scanner")
-root.geometry("600x550")
+root.geometry("600x600")
 
 app = Frame(root)
 app.grid();
@@ -55,6 +56,12 @@ cwd = os.getcwd();
 vsave = StringVar()
 labsave = Label(app, textvariable=vsave, width=50, height=1)
 vsave.set(cwd);
+
+labTimes = Label(app, text="Repeats:");
+txtTimes = Entry(app, width = 3);
+
+labWells = Label(app, text="Wells:");
+txtWells = Entry(app, width = 20);
 
 labimage = Label(app, image = None, borderwidth=3, relief="solid");
 
@@ -185,7 +192,7 @@ def findsavedir():
     savedir = tkFileDialog.askdirectory(title="Choose Save Directory", initialdir=cwd)
     vsave.set(savedir)
 
-def name_well():
+def name_wells():
     global savedir
     for i in range(8):
         im = tf.imread(savedir + "\\" + str(i)+".tiff");
@@ -200,6 +207,17 @@ def name_well():
                 row = 13-row;
             well = cols[col]+str(row);
             tf.imsave(savedir + "\\" + well +".tiff", im[j*cut_dis+offsets[i]:(j+1)*cut_dis+offsets[i],:]);
+
+def name_well(col, row, orientation):
+    row = row + 1
+    odd = col%2 == 1
+    if  not orientation:
+        col = 7-col
+        if not odd:
+            row = 13-row
+    elif odd:
+        row = 13-row
+    return cols[col]+str(row)
 
 def stop():
     """Stop scanning by setting the global flag to False."""
@@ -246,23 +264,6 @@ def scan():
         time.sleep(com_sleep);
         print(recSerial(xy_stage));
         for col in range(8):
-            """#Acquire and move
-            for i in range(12):
-                if (running == False):
-                    break
-                ss.request_acquire(0, 0);
-                time.sleep(cap_sleep);
-                sendSerial(xy_stage, "1pr" + str((-1) ** col * well_size) + ";\r\n");
-                #file_name = savedir + '\\'+str(col)+ '_' + str(i) + '.tiff'
-                file_name = savedir + '\\' + name_well(col,i,orient) + '.tiff'
-                ss.file_xfer_params = (file_name, 0);
-                os.remove(file_name);
-                ss.xfer_image_by_file();
-                ss.hide_ui();
-                im = Image.open(file_name);
-                im.thumbnail(resize, Image.ANTIALIAS)
-                changeImage(im)
-                root.update()"""
             file_name = savedir + '\\'+str(col)+ '.tiff';
             ss.file_xfer_params = (file_name, 0);
             os.remove(file_name);
@@ -285,9 +286,110 @@ def scan():
                 time.sleep(com_sleep);
                 print(recSerial(xy_stage));
 
-        t = Timer(10, name_well)
+        t = Timer(10, name_wells)
         t.start()
         stop()
+
+def scan_wellbywell():
+    global running
+    global reading
+    global zeroed
+    global savedir
+    if running:
+        print 'Already Running'
+    else:
+        repeat = txtTimes.get();
+        if repeat.isdigit():
+            running = True
+            reading = True
+            zeroed = False
+            orient = orvar.get()
+            repeat = int(repeat);
+            changeStatus('Scanning Plate')
+            initCamera(camerafiles[0]);
+            print('scan plate')
+            sendSerial(xy_stage, "0lo1;\r\n");
+            time.sleep(com_sleep);
+            print(recSerial(xy_stage));
+            time.sleep(com_sleep);
+            for col in range(8):
+                #Acquire and move
+                for i in range(12):
+                    if (running == False):
+                        break
+                    for j in range(repeat*2+1):
+                        capWell(col, i, j, orient)
+                        root.update()
+
+                #Wait until motor movement is finished:
+                if (running == False):
+                        break
+                time.sleep(1);
+                xy_stage.reset_input_buffer();
+                time.sleep(1);
+                
+                if (col < 7 and running == True): #Move to next row
+                    sendSerial(xy_stage, "0pr"+str(well_size+adj_x)+";1pr"+str(adj_y)+";\r\n");
+                    time.sleep(com_sleep);
+                    print(recSerial(xy_stage));
+                
+            stop()
+        else:
+            tkMessageBox.showinfo("Wrong Entry","Please input an integer into number of repeats.");
+
+def scan_singlewell():
+    global running
+    global reading
+    global zeroed
+    global savedir
+    if running:
+        print 'Already Running'
+    else:
+        repeat = txtTimes.get();
+        if repeat.isdigit():
+            wells = txtWells.get().split(',');
+            orient = orvar.get()
+            repeat = int(repeat);
+            for well in wells:
+                running = True
+                reading = True
+                zeroed = False
+                changeStatus('Scanning Plate')
+                #Move to well
+                if well[0] in cols and well[1:].isdigit():
+                    col = cols.index(well[0]);
+                    row = int(well[1:])-1;
+                    if not orient:
+                        col = 7-col;
+                        row = 11-row
+                    sendSerial(xy_stage, "0pr"+str((well_size+adj_x)*col)+";1pr"+str(well_size*(row+int(col%2==1))+adj_y*col)+";\r\n");
+                    print(recSerial(xy_stage));
+                    initCamera(camerafiles[0]);
+                    print('scan plate')
+                    sendSerial(xy_stage, "0lo1;\r\n");
+                    time.sleep(com_sleep);
+                    print(recSerial(xy_stage));
+                    time.sleep(com_sleep);
+                    for j in range(repeat*2+1):
+                        capWell(col, row, j, orient)
+                        root.update()
+                stop()
+        else:
+            tkMessageBox.showinfo("Wrong Entry","Please input an integer into number of repeats.");
+
+def capWell(col, i, j, orient):
+    ss.request_acquire(0, 0);
+    time.sleep(cap_sleep);
+    sendSerial(xy_stage, "1pr" + str((-1) ** (col+j) * well_size) + ";\r\n");
+    #file_name = savedir + '\\'+str(col)+ '_' + str(i) + '.tiff'
+    file_name = savedir + '\\' + name_well(col,i,orient)+ '_' + str(j) + '.tiff'
+    ss.file_xfer_params = (file_name, 0);
+    os.remove(file_name);
+    ss.xfer_image_by_file();
+    ss.hide_ui();
+    im = Image.open(file_name);
+    im.thumbnail(resize, Image.ANTIALIAS)
+    changeImage(im)
 
 print(recSerial(xy_stage));
 time.sleep(com_sleep)
@@ -298,6 +400,8 @@ butstart_1 = Button(app, text="Focus 2", command=focus_2)
 butstart_2 = Button(app, text="Focus 3", command=focus_3)
 butstop = Button(app, text="Zero", command=stop)
 butscan = Button(app, text="Scan Plate", command=scan)
+butwbw = Button(app, text="Scan Well by Well", command=scan_wellbywell)
+butindw = Button(app, text="Scan Indicated Wells", command=scan_singlewell)
 butsavedir = Button(app, text="Directory", command=findsavedir)
 
 butstart_0.grid(row=0,column=0)
@@ -309,7 +413,13 @@ butsavedir.grid(row=2,column=0)
 labsave.grid(row=2, column=1, columnspan=4)
 or_chkbtn.grid(row=3, column=0, columnspan=2)
 butscan.grid(row=3,column=2)
-labimage.grid(row=4, column=0, columnspan=5)
+butwbw.grid(row=4,column=2)
+labTimes.grid(row=4,column=0)
+txtTimes.grid(row=4,column=1)
+labWells.grid(row=5,column=0)
+txtWells.grid(row=5,column=1,columnspan=3)
+butindw.grid(row=5,column=4)
+labimage.grid(row=6, column=0, columnspan=5)
 
 root.after(1000, scanning)  # After 1 second, call scanning
 root.mainloop()
