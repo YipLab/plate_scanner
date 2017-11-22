@@ -2,9 +2,9 @@
 //YIP LAB - Aaron Au
 
 //Constants
-int pinDir[] = {6,3}; //Motor Direction {x,y}
-int pinEn[] = {5,2}; //Motor Enable {x,y}
-int pinPul[] = {7,4}; //Motor Pulse {x,y}
+int pinDir[] = {3,6}; //Motor Direction {x,y}
+int pinEn[] = {2,5}; //Motor Enable {x,y}
+int pinPul[] = {4,7}; //Motor Pulse {x,y}
 int pinLim[2][2] = {{11,10},{8,9}};//Limit switch X positive direction {{x+,x-},{y+,y-}}
 int pinLight = 13;
 
@@ -81,7 +81,7 @@ for (int i = 0; i<2; i++) {
   while (limitNotHit) {
       limitNotHit = moveSteps(i, false, 100,true);
     }
-  moveSteps(i,true, 500, false);
+  moveSteps(i,true, 800, false);
 }
 //Serial.println("or");
 }

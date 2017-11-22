@@ -19,8 +19,8 @@ import tifffile as tf
 #VARIABLES
 xyCom = "COM3"; #xy_stage COM port
 well_size = 8.95; #mm
-start_x = 51; #mm
-start_y = 11.75; #mm
+start_x = 48.0; #mm
+start_y = 8.75; #mm
 adj_y = -0.1; #mm
 adj_x = -0.1; #mm
 com_sleep = 1; #seconds
