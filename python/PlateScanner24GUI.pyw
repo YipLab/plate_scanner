@@ -20,8 +20,8 @@ import tifffile as tf
 #VARIABLES
 xyCom = "COM3"; #xy_stage COM port
 well_size = 8.95; #mm
-start_x = 48.0; #mm
-start_y = 8.75; #mm
+start_x = 49.0; #mm
+start_y = 6.0; #mm
 adj_y = -0.1; #mm
 adj_x = -0.1; #mm
 com_sleep = 1; #seconds
@@ -33,14 +33,14 @@ point2_y =11*well_size; #mm
 point3_x =7*well_size; #mm
 point3_y =11*well_size; #mm
 resize = 500,500; #Image Size
-camerafiles = ["BitFlow Camera Interface Short", "BitFlow Camera Interface Long"]
-cols = ['A','B','C','D','E','F','G','H']
-offsets = [0, 575, 220, 100, 270, 160, 200, 100]; # offset from where to cut
-cut_dis = 4050; #pixels
+camerafiles = ["BitFlow Camera Interface Mid", "BitFlow Camera Interface Long"]
+cols = ['A','B','C','D']
+#offsets = [0, 575, 220, 100, 270, 160, 200, 100]; # offset from where to cut
+#cut_dis = 8100; #pixels
 
 #INITIALIZE GUI
 root = Tk()
-root.title("96 Well Plate Scanner")
+root.title("24 Well Plate Scanner")
 root.geometry("600x600")
 
 app = Frame(root)
@@ -57,8 +57,10 @@ vsave = StringVar()
 labsave = Label(app, textvariable=vsave, width=50, height=1)
 vsave.set(cwd);
 
+svarTimes = StringVar();
 labTimes = Label(app, text="Repeats:");
-txtTimes = Entry(app, width = 3);
+txtTimes = Entry(app, textvariable=svarTimes, width = 3);
+svarTimes.set('0');
 
 labWells = Label(app, text="Wells:");
 txtWells = Entry(app, width = 20);
@@ -115,8 +117,8 @@ def scanning():
         print "scanning"
         changeStatus('Focusing')
         ss.request_acquire(0, 0);
-        time.sleep(cap_sleep);
-        sendSerial(xy_stage, "1pr" + str((-1) ** scantime * well_size) + ";\r\n");
+        time.sleep(cap_sleep+2.0);
+        sendSerial(xy_stage, "1pr" + str((-1) ** scantime * well_size*2) + ";\r\n");
         file_name = 'test.tiff'        
         ss.file_xfer_params = (file_name, 0);
         os.remove(cwd + '\\' + file_name);
@@ -124,7 +126,10 @@ def scanning():
             im.close();
         ss.xfer_image_by_file();
         ss.hide_ui();
-        im = Image.open(file_name);
+        if scantime%2==0:
+            im = Image.open(file_name).crop((1000,1000,3000,3000));
+        else:
+            im = Image.open(file_name).crop((1000,5000,3000,7000))
         im.thumbnail(resize, Image.ANTIALIAS)
         changeImage(im)
         scantime += 1
@@ -194,19 +199,16 @@ def findsavedir():
 
 def name_wells():
     global savedir
-    for i in range(8):
-        im = tf.imread(savedir + "\\" + str(i)+".tiff");
-        for j in range(12):
-            col = i;
-            row = j + 1;
-            if not orvar.get():
-                col = 7-col;
-                if  col%2 == 1:
-                    row = 13-row;
-            elif col%2 == 1:
-                row = 13-row;
-            well = cols[col]+str(row);
-            tf.imsave(savedir + "\\" + well +".tiff", im[j*cut_dis+offsets[i]:(j+1)*cut_dis+offsets[i],:]);
+    for i in range(4):
+        for k in range(2):
+            im = tf.imread(savedir + "\\" + str(2*i+k)+".tiff");
+            for j in range(6):
+                col = i;
+                row = j + 1;
+                if (2*i+k)%2==1:
+                    im = np.flip(im,0);
+                well = cols[col]+str(row)+"_"+str(k);
+                tf.imsave(savedir + "\\" + well +".tiff", im[j*cut_dis+offsets[i]:(j+1)*cut_dis+offsets[i],:]);
 
 def name_well(col, row, orientation):
     row = row + 1
@@ -286,8 +288,8 @@ def scan():
                 time.sleep(com_sleep);
                 print(recSerial(xy_stage));
 
-        t = Timer(10, name_wells)
-        t.start()
+        #t = Timer(10, name_wells) NO NEED AS IT SHOULD BE STICHED FIRST
+        #t.start()
         stop()
 
 def scan_wellbywell():
@@ -312,14 +314,23 @@ def scan_wellbywell():
             time.sleep(com_sleep);
             print(recSerial(xy_stage));
             time.sleep(com_sleep);
-            for col in range(8):
+            for col in range(4):
                 #Acquire and move
-                for i in range(12):
+                for i in range(6):
                     if (running == False):
                         break
-                    for j in range(repeat*2+1):
-                        capWell(col, i, j, orient)
-                        root.update()
+                    for side in range(2):
+                        for j in range(repeat*2+1):
+                            capWell(col, i, j, side)
+                            root.update()
+                        if side == 0: #Move to left side of well
+                            sendSerial(xy_stage, "0pr"+str(well_size+adj_x)+";1pr"+str(adj_y+0.7*(-1)**(col)+((-1)**(col+1)*well_size*2.1))+";\r\n");
+                            time.sleep(com_sleep);
+                            print(recSerial(xy_stage));
+                        else: #Move back to right side
+                            sendSerial(xy_stage, "0pr-"+str(well_size+adj_x)+";1pr"+str(adj_y+0.7*(-1)**(col+1))+";\r\n");
+                            time.sleep(com_sleep);
+                            print(recSerial(xy_stage));
 
                 #Wait until motor movement is finished:
                 if (running == False):
@@ -328,8 +339,8 @@ def scan_wellbywell():
                 xy_stage.reset_input_buffer();
                 time.sleep(1);
                 
-                if (col < 7 and running == True): #Move to next row
-                    sendSerial(xy_stage, "0pr"+str(well_size+adj_x)+";1pr"+str(adj_y)+";\r\n");
+                if (col < 4 and running == True): #Move to next row
+                    sendSerial(xy_stage, "0pr"+str(2*(well_size+adj_x))+";1pr"+str(2.1*(adj_y))+";\r\n");
                     time.sleep(com_sleep);
                     print(recSerial(xy_stage));
                 
@@ -359,30 +370,38 @@ def scan_singlewell():
                 if well[0] in cols and well[1:].isdigit():
                     col = cols.index(well[0]);
                     row = int(well[1:])-1;
-                    if not orient:
-                        col = 7-col;
-                        row = 11-row
-                    sendSerial(xy_stage, "0pr"+str((well_size+adj_x)*col)+";1pr"+str(well_size*(row+int(col%2==1))+adj_y*col)+";\r\n");
-                    print(recSerial(xy_stage));
-                    initCamera(camerafiles[0]);
-                    print('scan plate')
-                    sendSerial(xy_stage, "0lo1;\r\n");
-                    time.sleep(com_sleep);
-                    print(recSerial(xy_stage));
-                    time.sleep(com_sleep);
-                    for j in range(repeat*2+1):
-                        capWell(col, row, j, orient)
-                        root.update()
+                    if (row <= 6 and row >= 0):
+                        sendSerial(xy_stage, "0pr"+str((well_size*2+adj_x)*col)+";1pr"+str(well_size*2.1*(row+int(col%2==1))+adj_y*col*2.1)+";\r\n");
+                        print(recSerial(xy_stage));
+                        initCamera(camerafiles[0]);
+                        print('scan plate')
+                        sendSerial(xy_stage, "0lo1;\r\n");
+                        time.sleep(com_sleep);
+                        print(recSerial(xy_stage));
+                        time.sleep(com_sleep);
+                        if col%2==1:
+                            row = 6-row;
+                        for side in range(2):
+                            for j in range(repeat*2+1):
+                                capWell(col, row, j, side)
+                                root.update()
+                            if side == 0: #Move to left side of well
+                                sendSerial(xy_stage, "0pr"+str(well_size+adj_x)+";1pr"+str(adj_y+0.7*(-1)**(col)+((-1)**(col+1)*well_size*2.1))+";\r\n");
+                                time.sleep(com_sleep);
+                                print(recSerial(xy_stage));
                 stop()
         else:
             tkMessageBox.showinfo("Wrong Entry","Please input an integer into number of repeats.");
 
-def capWell(col, i, j, orient):
+def capWell(col, i, j, k):
+    i=i+1;
+    if col%2==1:
+        i = 7-i;
     ss.request_acquire(0, 0);
-    time.sleep(cap_sleep);
-    sendSerial(xy_stage, "1pr" + str((-1) ** (col+j) * well_size) + ";\r\n");
+    time.sleep(cap_sleep+2.0);
+    sendSerial(xy_stage, "1pr" + str((-1) ** (col+j) * well_size*2.1) + ";\r\n");
     #file_name = savedir + '\\'+str(col)+ '_' + str(i) + '.tiff'
-    file_name = savedir + '\\' + name_well(col,i,orient)+ '_' + str(j) + '.tiff'
+    file_name = savedir + '\\' + cols[col]+ str(i) + '_' + str(k) + '_' + str(j) + '.tiff'
     ss.file_xfer_params = (file_name, 0);
     os.remove(file_name);
     ss.xfer_image_by_file();
@@ -391,8 +410,8 @@ def capWell(col, i, j, orient):
     im.thumbnail(resize, Image.ANTIALIAS)
     changeImage(im)
 
-print(recSerial(xy_stage));
-time.sleep(com_sleep)
+    print(recSerial(xy_stage));
+
 stop();
 
 butstart_0 = Button(app, text="Focus 1", command=focus_1)
@@ -419,7 +438,7 @@ txtTimes.grid(row=4,column=1)
 labWells.grid(row=5,column=0)
 txtWells.grid(row=5,column=1,columnspan=3)
 butindw.grid(row=5,column=4)
-labimage.grid(row=6, column=0, columnspan=5)
+labimage.grid(row=6, column=0, columnspan=6)
 
 root.after(1000, scanning)  # After 1 second, call scanning
 root.mainloop()
