@@ -27,7 +27,7 @@ void setup() {
   pinMode(12, OUTPUT);
   digitalWrite(12, HIGH);
   pinMode(pinLight, OUTPUT);
-  digitalWrite(pinLight, LOW);
+  digitalWrite(pinLight, HIGH);
  
 
   Serial.println("Plate Scanner Arduino");
@@ -70,7 +70,8 @@ void doCommand(String command) {
     zero();
   } else if (command.substring(1,3) == "lo") {
     //Serial.println(command.substring(3,4).toInt());
-    digitalWrite(pinLight,command.substring(3,4).toInt());
+    int off = (command.substring(3,4).toInt()+1)%2;
+    digitalWrite(pinLight,off);
   }
 
 }
