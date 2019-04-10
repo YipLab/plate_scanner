@@ -246,7 +246,7 @@ def checkRep():
     rep = txtRep.get()
     if not rep.isdigit():
         value = "Number of Reps is not an integer or is negative"
-    el if rep == '0':
+    elif rep == '0':
         value = "Number of Reps cannot be 0"
     else:
         check = True
@@ -293,9 +293,10 @@ def scan_rep():
             next_x = cols.index(well[0])
             next_y = int(well[1:])-1
             if orient: #column 1 @ top, A @ right
-                next_y = 11-next_y
+                next_y = next_y
             else: #column 12 @ bottom, A @ left
                 next_x = 7-next_x
+                next_y = 11-next_y
             
             #move to well
             sendSerial(xy_stage, "0pr" + str((next_x-curr_x)*well_size+(next_y-curr_y)*adj_x) + ";1pr" + str((next_y-curr_y)*well_size+(next_x-curr_x)*adj_y) + ";\r\n")
@@ -328,7 +329,7 @@ def scan_rep():
                 else:
                     curr_y += 1
 
-            stop()
+        stop()
 
 def capWell(well, rep):
     ss.request_acquire(0, 0);
@@ -355,7 +356,7 @@ butStart = Button(app, text="Start Scan", command=scan_rep)
 butStop = Button(app, text="Zero", command=stop)
 
 #Grid UI
-chkOr.grid(row=0, column=0)
+or_chkbtn.grid(row=0, column=0)
 labstatus.grid(row=0, column=1, columnspan=3)
 labWells.grid(row=1, column=0)
 txtWells.grid(row=1, column=1, columnspan=3)
@@ -364,7 +365,7 @@ txtInt.grid(row=2, column=1)
 labRep.grid(row=2, column=2)
 txtRep.grid(row=2, column=3)
 butSavedir.grid(row=3, column=0)
-labSavedir.grid(row=3, column=1, columnspan=3)
+labsave.grid(row=3, column=1, columnspan=3)
 butStart.grid(row=4, column=0)
 butStop.grid(row=4, column=1)
 labimage.grid(row=5, column=0, columnspan=4)
