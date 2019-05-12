@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Aug 18 13:31:18 2017
+YIP LAB - 2019
 
+Acqure time series data using the linescan plate scanner
 @author: Aaron Au
 """
 from Tkinter import *
@@ -27,6 +29,12 @@ adj_y = -0.1; #mm
 adj_x = -0.1; #mm
 com_sleep = 0.5; #seconds
 cap_sleep = 1; #seconds
+point1_x =5*well_size; #mm
+point1_y =0; #mm
+point2_x =0; #mm
+point2_y =11*well_size; #mm
+point3_x =7*well_size; #mm
+point3_y =11*well_size; #mm
 resize = 500,500; #Image Size
 camerafiles = ["BitFlow Camera Interface Short", "BitFlow Camera Interface Long"]
 cols = ['A','B','C','D','E','F','G','H']
@@ -134,6 +142,60 @@ def scanning():
     # After 1 second, call scanning again (create a recursive loop)
     root.update()
     root.after(1000, scanning)
+
+def focus_1():
+    """Enable scanning by setting the global flag to True."""
+    global running
+    global scantime
+    global zeroed
+    if running:
+        print 'Already Running'
+    else: 
+        running = True
+        changeStatus('Focus 1')
+        sendSerial(xy_stage,"0pr"+str(point1_x)+";1pr"+str(point1_y)+";0lo1;\r\n");
+        initCamera(camerafiles[0]); 
+        time.sleep(com_sleep);
+        print(recSerial(xy_stage));
+        time.sleep(com_sleep);
+        scantime = 0;
+        zeroed = False;
+        
+def focus_2():
+    """Enable scanning by setting the global flag to True."""
+    global running
+    global scantime
+    global zeroed
+    if running:
+        print 'Already Running'
+    else: 
+        running = True
+        changeStatus('Focus 2')
+        sendSerial(xy_stage,"0pr"+str(point2_x)+";1pr"+str(point2_y)+";0lo1;\r\n");
+        initCamera(camerafiles[0]); 
+        time.sleep(com_sleep);
+        print(recSerial(xy_stage));
+        time.sleep(com_sleep);
+        scantime = 0;
+        zeroed = False;
+        
+def focus_3():
+    """Enable scanning by setting the global flag to True."""
+    global running
+    global scantime
+    global zeroed
+    if running:
+        print 'Already Running'
+    else: 
+        running = True
+        changeStatus('Focus 3')
+        sendSerial(xy_stage, "0pr" + str(point3_x) + ";1pr" + str(point3_y) + ";0lo1;\r\n");
+        initCamera(camerafiles[0]); 
+        time.sleep(com_sleep);
+        print(recSerial(xy_stage));
+        time.sleep(com_sleep);
+        scantime = 0;
+        zeroed = False;
 
 def findsavedir():
     global savedir
@@ -351,24 +413,30 @@ time.sleep(com_sleep)
 stop();
 
 #Button Setup
+butStart_0 = Button(app, text="Focus 1", command=focus_1)
+butStart_1 = Button(app, text="Focus 2", command=focus_2)
+butStart_2 = Button(app, text="Focus 3", command=focus_3)
 butSavedir = Button(app, text="Directory", command=findsavedir)
 butStart = Button(app, text="Start Scan", command=scan_rep)
 butStop = Button(app, text="Zero", command=stop)
 
-#Grid UI
-or_chkbtn.grid(row=0, column=0)
-labstatus.grid(row=0, column=1, columnspan=3)
-labWells.grid(row=1, column=0)
-txtWells.grid(row=1, column=1, columnspan=3)
-labInt.grid(row=2, column=0)
-txtInt.grid(row=2, column=1)
-labRep.grid(row=2, column=2)
-txtRep.grid(row=2, column=3)
-butSavedir.grid(row=3, column=0)
-labsave.grid(row=3, column=1, columnspan=3)
-butStart.grid(row=4, column=0)
-butStop.grid(row=4, column=1)
-labimage.grid(row=5, column=0, columnspan=4)
+#Grid 
+butStart_0.grid(row=0,column=0)
+butStart_1.grid(row=0,column=1)
+butStart_2.grid(row=0,column=2)
+or_chkbtn.grid(row=1, column=0)
+labstatus.grid(row=1, column=1, columnspan=3)
+labWells.grid(row=2, column=0)
+txtWells.grid(row=2, column=1, columnspan=3)
+labInt.grid(row=3, column=0)
+txtInt.grid(row=3, column=1)
+labRep.grid(row=3, column=2)
+txtRep.grid(row=3, column=3)
+butSavedir.grid(row=4, column=0)
+labsave.grid(row=4, column=1, columnspan=3)
+butStart.grid(row=5, column=0)
+butStop.grid(row=5, column=1)
+labimage.grid(row=6, column=0, columnspan=4)
 
 root.after(1000, scanning)  # After 1 second, call scanning
 root.mainloop()
