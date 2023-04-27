@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="186.10001mm"
+   height="193.2541mm"
+   viewBox="0 0 186.10001 193.2541"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="well_plate_holder_2.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35355339"
+     inkscape:cx="-229.67232"
+     inkscape:cy="62.488573"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:object-paths="true"
+     inkscape:snap-intersection-paths="true"
+     inkscape:snap-smooth-nodes="true"
+     inkscape:window-width="1600"
+     inkscape:window-height="837"
+     inkscape:window-x="1912"
+     inkscape:window-y="80"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(129.03334,8.3833414)">
+    <path
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.37795275;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m -487.49609,-31.496094 v 538.031254 10 182 h 702.99218 v -182 -10 -538.031254 z m 665.47461,29.9882815 c 4.18767,0 7.56054,3.3708394 7.56054,7.5585937 0,4.1877168 -3.37287,7.5605468 -7.56054,7.5605468 -4.18772,0 -7.5586,-3.37283 -7.5586,-7.5605468 0,-4.1877543 3.37088,-7.5585937 7.5586,-7.5585937 z M -357.10156,93.228516 H 85.103516 V 391.81055 H -357.10156 Z m -92.91211,141.537104 c 4.18771,0 7.55859,3.37092 7.55859,7.5586 0,4.18779 -3.37088,7.56055 -7.55859,7.56055 -4.18768,0 -7.56055,-3.37276 -7.56055,-7.56055 0,-4.18768 3.37287,-7.5586 7.56055,-7.5586 z m 627.94336,236.44532 c 4.18768,0 7.55859,3.37087 7.55859,7.55859 0,4.18779 -3.37091,7.55861 -7.55859,7.55859 -4.18779,0 -7.5586,-3.3708 -7.5586,-7.55859 0,-4.18772 3.37081,-7.55859 7.5586,-7.55859 z M -136,517.30664 c 7.3285,0 13.22852,5.89997 13.22852,13.22852 v 144 c 0,7.32846 -5.90002,13.22851 -13.22852,13.22851 -7.3285,0 -13.22852,-5.90005 -13.22852,-13.22851 v -144 c 0,-7.32855 5.90002,-13.22852 13.22852,-13.22852 z"
+       transform="scale(0.26458333)"
+       id="rect6300-4"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>
